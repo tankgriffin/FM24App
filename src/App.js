@@ -1,0 +1,32 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
+import SquadList from './pages/SquadList';
+import TacticalBoard from './pages/TacticalBoard';
+import MatchPlanner from './pages/MatchPlanner';
+import Assistant from './pages/Assistant';
+import { SquadProvider } from './contexts/SquadContext';
+import { TacticsProvider } from './contexts/TacticsContext';
+
+function App() {
+  return (
+    <SquadProvider>
+      <TacticsProvider>
+        <Router>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/squad" element={<SquadList />} />
+              <Route path="/tactical-board" element={<TacticalBoard />} />
+              <Route path="/match-planner" element={<MatchPlanner />} />
+              <Route path="/assistant" element={<Assistant />} />
+            </Routes>
+          </Layout>
+        </Router>
+      </TacticsProvider>
+    </SquadProvider>
+  );
+}
+
+export default App; 
