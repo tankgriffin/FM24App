@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTactics } from '../contexts/TacticsContext';
 import { useSquad } from '../contexts/SquadContext';
 import { Save, Download, Upload, RotateCcw, Plus } from 'lucide-react';
+import SquadAnalysisTable from '../components/SquadAnalysisTable';
 
 // Common formations with positions (x, y coordinates as percentages)
 const FORMATIONS = {
@@ -89,7 +90,7 @@ const FORMATIONS = {
 
 const TacticalBoard = () => {
   const { players } = useSquad();
-  const { matches } = useTactics();
+  const { matches, preferredRoles } = useTactics();
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [myFormation, setMyFormation] = useState('4-4-2');
   const [opponentFormation, setOpponentFormation] = useState('4-4-2');
@@ -99,6 +100,7 @@ const TacticalBoard = () => {
   const [arrows, setArrows] = useState([]);
   const [isDrawingArrow, setIsDrawingArrow] = useState(false);
   const [arrowStart, setArrowStart] = useState(null);
+  const [roleSelections, setRoleSelections] = useState([]);
   const boardRef = useRef(null);
 
   // Overlap detection and resolution
@@ -161,6 +163,8 @@ const TacticalBoard = () => {
     
     setMyPlayers(resolved.myPlayersTemp);
     setOpponentPlayers(resolved.opponentPlayersTemp);
+    // Initialize roleSelections to default roles for each position
+    setRoleSelections(myFormationData.positions.map(pos => pos.role));
   }, [myFormation, opponentFormation]);
 
   const handlePlayerDrag = (playerId, newX, newY, isMyTeam) => {
@@ -251,6 +255,18 @@ const TacticalBoard = () => {
     localStorage.setItem('fm24-tactics', JSON.stringify(savedTactics));
     
     alert('Tactic saved successfully!');
+  };
+
+  // Handler for changing role selection for a position
+  const handleRoleChange = (index, newRole) => {
+    setRoleSelections(prev => prev.map((role, i) => i === index ? newRole : role));
+    setMyPlayers(prev => prev.map((player, i) => i === index ? { ...player, role: newRole } : player));
+  };
+
+  // Handler for player search in dropdown
+  const [playerSearch, setPlayerSearch] = useState({});
+  const handlePlayerSearch = (index, value) => {
+    setPlayerSearch(prev => ({ ...prev, [index]: value }));
   };
 
   return (
@@ -346,7 +362,7 @@ const TacticalBoard = () => {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-4">
         <div 
           ref={boardRef}
-          className="relative w-full h-96 bg-green-600 rounded-lg overflow-hidden pitch-bg"
+          className="relative w-full h-96 bg-green-600 rounded-lg overflow-hidden"
           style={{ aspectRatio: '16/10' }}
           onClick={(e) => {
             if (isDrawingArrow) {
@@ -434,26 +450,73 @@ const TacticalBoard = () => {
        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-4">
          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Assign Squad Players</h3>
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-           {myPlayers.map((player, index) => (
-             <div key={player.id} className="space-y-2">
-               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                 Position {index + 1} ({player.role})
-               </label>
-               <select
-                 value={player.playerId || ''}
-                 onChange={(e) => handlePlayerSelect(index, e.target.value)}
-                 className="w-full p-2 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-               >
-                 <option value="">Select Player</option>
-                 {players.map(squadPlayer => (
-                   <option key={squadPlayer.id} value={squadPlayer.id}>
-                     {squadPlayer.Name || 'Unknown Player'}
-                   </option>
-                 ))}
-               </select>
-             </div>
-           ))}
+           {myPlayers.map((player, index) => {
+             // Get the selected role for this position
+             const selectedRole = roleSelections[index] || player.role;
+             // Filter and sort players by score for this role
+             const scoredPlayers = players
+               .map(squadPlayer => {
+                 let score = 0;
+                 if (selectedRole && squadPlayer.roleScores) {
+                   score = selectedRole === 'GK'
+                     ? (squadPlayer.roleScores.GK || 0)
+                     : (squadPlayer.roleScores[selectedRole] || 0);
+                 }
+                 return { ...squadPlayer, _score: score };
+               })
+               .filter(squadPlayer => {
+                 const search = playerSearch[index]?.toLowerCase() || '';
+                 return !search || (squadPlayer.Name?.toLowerCase().includes(search));
+               })
+               .sort((a, b) => b._score - a._score);
+             return (
+               <div key={player.id} className="space-y-2">
+                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                   Position {index + 1}
+                 </label>
+                 {/* Role selector for this position */}
+                 <select
+                   value={selectedRole}
+                   onChange={e => handleRoleChange(index, e.target.value)}
+                   className="w-full p-2 text-sm border border-blue-300 dark:border-blue-600 rounded bg-blue-50 dark:bg-blue-900 text-blue-900 dark:text-blue-100 mb-1"
+                 >
+                   {preferredRoles.map(role => (
+                     <option key={role} value={role}>
+                       {require('../utils/roleCalculations').ROLE_NAMES[role] || role}
+                     </option>
+                   ))}
+                 </select>
+                 {/* Player search input */}
+                 <input
+                   type="text"
+                   placeholder="Search player..."
+                   value={playerSearch[index] || ''}
+                   onChange={e => handlePlayerSearch(index, e.target.value)}
+                   className="w-full p-2 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white mb-1"
+                 />
+                 {/* Player assignment dropdown, sorted by score for this role */}
+                 <select
+                   value={player.playerId || ''}
+                   onChange={e => handlePlayerSelect(index, e.target.value)}
+                   className="w-full p-2 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                 >
+                   <option value="">Select Player</option>
+                   {scoredPlayers.map(squadPlayer => (
+                     <option key={squadPlayer.id} value={squadPlayer.id}>
+                       {squadPlayer.Name || 'Unknown Player'}
+                       {selectedRole && squadPlayer._score ? ` (${squadPlayer._score})` : ''}
+                     </option>
+                   ))}
+                 </select>
+               </div>
+             );
+           })}
          </div>
+       </div>
+
+       <div className="mt-8">
+         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Squad Analysis Table</h3>
+         <SquadAnalysisTable players={players} preferredRoles={roleSelections} />
        </div>
      </div>
    );
@@ -470,7 +533,6 @@ const PlayerCircle = ({ player, color, onDrag, onArrowStart, boardRef, isMyTeam 
       onArrowStart(player.id, player.x, player.y);
       return;
     }
-    
     setIsDragging(true);
     const rect = boardRef.current.getBoundingClientRect();
     const circleX = (player.x / 100) * rect.width;
@@ -483,11 +545,9 @@ const PlayerCircle = ({ player, color, onDrag, onArrowStart, boardRef, isMyTeam 
 
   const handleMouseMove = (e) => {
     if (!isDragging) return;
-    
     const rect = boardRef.current.getBoundingClientRect();
     const newX = Math.max(0, Math.min(100, ((e.clientX - rect.left - dragOffset.x) / rect.width) * 100));
     const newY = Math.max(0, Math.min(100, ((e.clientY - rect.top - dragOffset.y) / rect.height) * 100));
-    
     onDrag(player.id, newX, newY, isMyTeam);
   };
 
@@ -509,19 +569,31 @@ const PlayerCircle = ({ player, color, onDrag, onArrowStart, boardRef, isMyTeam 
   const circleColor = color === 'blue' ? 'bg-blue-500 border-blue-700' : 'bg-red-500 border-red-700';
   const textColor = 'text-white';
 
+  // Extract player number if available, else use index+1 fallback
+  const playerNumber = player.squadNumber || player.number || (player.playerName && player.playerName.match(/\d+/)?.[0]) || '';
+
   return (
     <div
-      className={`absolute w-8 h-8 ${circleColor} border-2 rounded-full cursor-move flex items-center justify-center text-xs font-bold ${textColor} select-none shadow-lg`}
+      className="absolute flex flex-col items-center"
       style={{
         left: `${player.x}%`,
         top: `${player.y}%`,
         transform: 'translate(-50%, -50%)',
         zIndex: isDragging ? 50 : 10
       }}
-      onMouseDown={handleMouseDown}
-      title={`${player.playerName} (${player.role}) - Drag to move, Shift+Click for arrow`}
     >
-      {player.playerName.charAt(0)}
+      {/* Player Name above the circle */}
+      <div className="mb-1 text-xs font-semibold text-gray-900 dark:text-white text-center whitespace-nowrap max-w-[80px] overflow-hidden text-ellipsis">
+        {player.playerName}
+      </div>
+      {/* Player Number in the circle */}
+      <div
+        className={`w-10 h-10 ${circleColor} border-2 rounded-full cursor-move flex items-center justify-center text-lg font-bold ${textColor} select-none shadow-lg`}
+        onMouseDown={handleMouseDown}
+        title={`${player.playerName} (${player.role}) - Drag to move, Shift+Click for arrow`}
+      >
+        {playerNumber || (player.playerName ? player.playerName.charAt(0) : '?')}
+      </div>
     </div>
   );
 };

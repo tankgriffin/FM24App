@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSquad } from '../contexts/SquadContext';
 import { useTactics } from '../contexts/TacticsContext';
@@ -10,13 +10,55 @@ import {
   TrendingUp,
   Trophy,
   ArrowRight,
-  Upload
+  Upload,
+  X,
+  Settings
 } from 'lucide-react';
+import { ROLE_NAMES } from '../utils/roleCalculations';
+
+// Helper: get abbreviation from role code
+const getAbbr = (role) => role.toLowerCase();
 
 const Dashboard = () => {
   const { players } = useSquad();
-  const { savedBoards, getUpcomingMatches } = useTactics();
+  const { savedBoards, getUpcomingMatches, preferredRoles, addPreferredRole, removePreferredRole, clearPreferredRoles } = useTactics();
   const upcomingMatches = getUpcomingMatches(3);
+
+  // Group roles by category for easier selection
+  const ROLE_CATEGORIES = {
+    'Goalkeepers': ['GKD', 'SKD', 'SKS', 'SKA'],
+    'Defenders': ['BPDD', 'BPDS', 'BPDC', 'CDD', 'CDS', 'CDC', 'CWBS', 'CWBA', 'FBD', 'FBS', 'FBA', 'IFBD', 'IWBD', 'IWBS', 'IWBA', 'LIBD', 'LIBS', 'NCB', 'NCBS', 'NCBC', 'NFB', 'WCB', 'WCBS', 'WCBA', 'WBD', 'WBS', 'WBA'],
+    'Midfielders': ['APM', 'APMA', 'ANC', 'AM', 'AMA', 'BWM', 'BWMS', 'BBM', 'CAR', 'CMD', 'CMS', 'CMA', 'DLPD', 'DLPS', 'DM', 'DMS', 'DW', 'DWS', 'ENG', 'HB', 'IF', 'IFA', 'IW', 'IWA', 'MEZ', 'MEZA', 'RGA', 'RPM', 'SV', 'SVA', 'SS', 'WM', 'WMS', 'WMA', 'WPM', 'WPMA'],
+    'Attackers': ['WTF', 'WTFA', 'WNG', 'WNGA', 'AF', 'CF', 'CFA', 'DLF', 'DLFA', 'F9', 'PF', 'PFS', 'PFA', 'P', 'TF', 'TFA', 'TQ', 'RMD']
+  };
+
+  // Preferred roles menu state
+  const [showRoleMenu, setShowRoleMenu] = useState(false);
+  const menuRef = useRef(null);
+
+  // Close menu on outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowRoleMenu(false);
+      }
+    }
+    if (showRoleMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showRoleMenu]);
+
+  // Handle role pill click
+  const handleRoleToggle = (role) => {
+    if (preferredRoles.includes(role)) {
+      removePreferredRole(role);
+    } else {
+      addPreferredRole(role);
+    }
+  };
 
   const stats = [
     {
@@ -162,6 +204,118 @@ const Dashboard = () => {
               );
             })}
           </div>
+        </div>
+      </div>
+
+      {/* Preferred Roles */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            Preferred Roles
+          </h2>
+          <p className="mt-1 text-gray-600 dark:text-gray-400">
+            Select your preferred roles
+          </p>
+        </div>
+        <div className="p-6">
+          {/* Role selection menu button */}
+          <div className="flex items-center space-x-4 mb-4">
+            <button
+              onClick={() => setShowRoleMenu(true)}
+              className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm"
+            >
+              Select Roles
+            </button>
+            {preferredRoles.length > 0 && (
+              <button
+                onClick={clearPreferredRoles}
+                className="px-3 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+              >
+                Clear All
+              </button>
+            )}
+          </div>
+          {/* Role selection popover menu (pills, no checkboxes) */}
+          {showRoleMenu && (
+            <div ref={menuRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 max-w-7xl w-full relative">
+                <div className="flex items-center mb-6">
+                  <input
+                    type="text"
+                    placeholder="Filter roles..."
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white mr-4"
+                    // Filtering logic can be added if desired
+                    disabled
+                  />
+                  <button
+                    onClick={() => setShowRoleMenu(false)}
+                    className="px-5 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-md shadow-sm"
+                  >
+                    Close
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                  {Object.entries(ROLE_CATEGORIES).flatMap(([category, roles]) => [
+                    <div key={category} className="col-span-full font-bold text-primary-700 dark:text-primary-300 mt-2 mb-1 text-sm uppercase tracking-wide">{category}</div>,
+                    ...roles.map((role) => (
+                      <button
+                        key={role}
+                        onClick={() => handleRoleToggle(role)}
+                        className={`flex items-center justify-between w-full px-2 py-1 rounded-md border transition-colors
+                          ${preferredRoles.includes(role)
+                            ? 'bg-green-700 text-white border-green-800 shadow'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 hover:bg-green-100 dark:hover:bg-green-900'}
+                        `}
+                        style={{ textAlign: 'left', fontSize: '0.92rem' }}
+                      >
+                        <span className="font-medium text-sm">{ROLE_NAMES[role] || role}</span>
+                        <span className="ml-2 text-xs font-mono text-green-300 dark:text-green-200 lowercase">{getAbbr(role)}</span>
+                      </button>
+                    ))
+                  ])}
+                </div>
+                <div className="flex justify-between mt-6">
+                  <button
+                    onClick={clearPreferredRoles}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md shadow-sm"
+                  >
+                    Clear
+                  </button>
+                  <button
+                    onClick={() => setShowRoleMenu(false)}
+                    className="px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* Display selected roles as badges */}
+          {preferredRoles.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {preferredRoles.map((role) => (
+                <span
+                  key={role}
+                  className="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full font-medium"
+                >
+                  {ROLE_NAMES[role] || role}
+                  <button
+                    onClick={() => removePreferredRole(role)}
+                    className="ml-2 text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-100"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+              <Settings className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <p>No preferred roles selected yet.</p>
+              <p className="text-sm">Select roles above to see their scores on player cards.</p>
+            </div>
+          )}
         </div>
       </div>
 

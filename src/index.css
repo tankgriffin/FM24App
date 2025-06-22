@@ -126,4 +126,48 @@ h1, h2, h3, h4, h5, h6, p {
 
 .dashboard-section {
   margin-bottom: 1.5rem !important;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #0ea5e9 #e5e7eb; /* primary-500 on gray-200 */
+}
+.custom-scrollbar::-webkit-scrollbar {
+  height: 8px;
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(14, 165, 233, 0.6); /* primary-500/60 */
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(14, 165, 233, 0.85); /* primary-500/85 */
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #e5e7eb; /* gray-200 */
+  border-radius: 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .custom-scrollbar {
+    scrollbar-color: #38bdf8 #1e293b; /* primary-400 on gray-800 */
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(56, 189, 248, 0.4); /* primary-400/40 */
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(56, 189, 248, 0.7); /* primary-400/70 */
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #1e293b; /* gray-800 */
+  }
+}
+
+.hide-native-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+.hide-native-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 } 

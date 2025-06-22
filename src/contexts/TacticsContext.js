@@ -98,6 +98,7 @@ export const TacticsProvider = ({ children }) => {
   const [currentBoard, setCurrentBoard] = useState(null);
   const [savedBoards, setSavedBoards] = useState([]);
   const [matches, setMatches] = useState([]);
+  const [preferredRoles, setPreferredRoles] = useState([]);
 
   // Load saved data from localStorage on mount
   useEffect(() => {
@@ -118,6 +119,15 @@ export const TacticsProvider = ({ children }) => {
         console.error('Error loading matches:', error);
       }
     }
+
+    const preferredRolesData = localStorage.getItem('fm24-preferred-roles');
+    if (preferredRolesData) {
+      try {
+        setPreferredRoles(JSON.parse(preferredRolesData));
+      } catch (error) {
+        console.error('Error loading preferred roles:', error);
+      }
+    }
   }, []);
 
   // Save data to localStorage when it changes
@@ -132,6 +142,25 @@ export const TacticsProvider = ({ children }) => {
       localStorage.setItem('fm24-matches', JSON.stringify(matches));
     }
   }, [matches]);
+
+  useEffect(() => {
+    localStorage.setItem('fm24-preferred-roles', JSON.stringify(preferredRoles));
+  }, [preferredRoles]);
+
+  // Preferred roles functions
+  const addPreferredRole = (role) => {
+    if (!preferredRoles.includes(role)) {
+      setPreferredRoles([...preferredRoles, role]);
+    }
+  };
+
+  const removePreferredRole = (role) => {
+    setPreferredRoles(preferredRoles.filter(r => r !== role));
+  };
+
+  const clearPreferredRoles = () => {
+    setPreferredRoles([]);
+  };
 
   const createBoard = (formation = '4-4-2') => {
     const formationData = FORMATIONS[formation];
@@ -307,6 +336,10 @@ export const TacticsProvider = ({ children }) => {
     deleteMatch,
     getUpcomingMatches,
     setCurrentBoard,
+    preferredRoles,
+    addPreferredRole,
+    removePreferredRole,
+    clearPreferredRoles,
   };
 
   return (

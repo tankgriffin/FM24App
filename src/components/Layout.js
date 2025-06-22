@@ -9,7 +9,8 @@ import {
   Menu, 
   X,
   Moon,
-  Sun
+  Sun,
+  BarChart3
 } from 'lucide-react';
 
 const Layout = ({ children }) => {
@@ -33,6 +34,7 @@ const Layout = ({ children }) => {
     { name: 'Squad Analysis', href: '/squad', icon: Users },
     { name: 'Tactical Board', href: '/tactical-board', icon: Zap },
     { name: 'Match Planner', href: '/match-planner', icon: Calendar },
+    { name: 'Historical Overview', href: '/historical', icon: BarChart3 },
     { name: 'AI Assistant', href: '/assistant', icon: MessageCircle },
   ];
 
