@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
+import {
   Home,
   Users,
   Zap,
@@ -11,7 +11,8 @@ import {
   Moon,
   Sun,
   BarChart3,
-  Target
+  Target,
+  Layers
 } from 'lucide-react';
 
 const Layout = ({ children }) => {
@@ -38,6 +39,7 @@ const Layout = ({ children }) => {
     { name: 'Historical Overview', href: '/historical', icon: BarChart3 },
     { name: 'AI Assistant', href: '/assistant', icon: MessageCircle },
     { name: 'Scouting Pool', href: '/scouting', icon: Target },
+    { name: 'Squad Planning', href: '/squad-planning', icon: Layers },
   ];
 
   const isActive = (href) => {

@@ -16,13 +16,17 @@ export const SquadProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [seasons, setSeasons] = useState([]);
   const [currentSeason, setCurrentSeason] = useState(1);
+  const [depthChart, setDepthChart] = useState({});
+  const [planningScouts, setPlanningScouts] = useState([]);
 
   // Load squad data and seasons from localStorage on mount
   useEffect(() => {
     const savedSquad = localStorage.getItem('fm24-squad');
     const savedSeasons = localStorage.getItem('fm24-seasons');
     const savedCurrentSeason = localStorage.getItem('fm24-current-season');
-    
+    const savedDepthChart = localStorage.getItem('fm24-depth-chart');
+    const savedPlanningScouts = localStorage.getItem('fm24-planning-scouts');
+
     if (savedSquad) {
       try {
         const parsedSquad = JSON.parse(savedSquad);
@@ -31,7 +35,7 @@ export const SquadProvider = ({ children }) => {
         console.error('Error loading saved squad:', error);
       }
     }
-    
+
     if (savedSeasons) {
       try {
         const parsedSeasons = JSON.parse(savedSeasons);
@@ -40,9 +44,25 @@ export const SquadProvider = ({ children }) => {
         console.error('Error loading saved seasons:', error);
       }
     }
-    
+
     if (savedCurrentSeason) {
       setCurrentSeason(parseInt(savedCurrentSeason));
+    }
+
+    if (savedDepthChart) {
+      try {
+        setDepthChart(JSON.parse(savedDepthChart));
+      } catch (error) {
+        console.error('Error loading depth chart:', error);
+      }
+    }
+
+    if (savedPlanningScouts) {
+      try {
+        setPlanningScouts(JSON.parse(savedPlanningScouts));
+      } catch (error) {
+        console.error('Error loading planning scouts:', error);
+      }
     }
   }, []);
 
@@ -62,6 +82,16 @@ export const SquadProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('fm24-current-season', currentSeason.toString());
   }, [currentSeason]);
+
+  // Save depth chart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('fm24-depth-chart', JSON.stringify(depthChart));
+  }, [depthChart]);
+
+  // Save planning scouts to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('fm24-planning-scouts', JSON.stringify(planningScouts));
+  }, [planningScouts]);
 
   const importSquadData = (htmlContent) => {
     setLoading(true);
@@ -235,6 +265,55 @@ export const SquadProvider = ({ children }) => {
     return playersForRole.length > 0 ? playersForRole[0] : null;
   };
 
+  // Depth chart management
+  const addToDepthChart = (positionKey, playerRef) => {
+    setDepthChart(prev => ({
+      ...prev,
+      [positionKey]: [...(prev[positionKey] || []), playerRef],
+    }));
+  };
+
+  const removeFromDepthChart = (positionKey, index) => {
+    setDepthChart(prev => ({
+      ...prev,
+      [positionKey]: (prev[positionKey] || []).filter((_, i) => i !== index),
+    }));
+  };
+
+  const moveInDepthChart = (positionKey, fromIndex, toIndex) => {
+    setDepthChart(prev => {
+      const slots = [...(prev[positionKey] || [])];
+      const [moved] = slots.splice(fromIndex, 1);
+      slots.splice(toIndex, 0, moved);
+      return { ...prev, [positionKey]: slots };
+    });
+  };
+
+  const clearDepthChart = () => {
+    setDepthChart({});
+    localStorage.removeItem('fm24-depth-chart');
+  };
+
+  // Planning scouts (scouted players persisted for squad planning)
+  const addPlanningScout = (player) => {
+    setPlanningScouts(prev => {
+      if (prev.some(s => s['Name'] === player['Name'])) return prev;
+      const scoutId = `scout_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+      return [...prev, { ...player, id: scoutId, isScout: true }];
+    });
+  };
+
+  const removePlanningScout = (scoutId) => {
+    setPlanningScouts(prev => prev.filter(s => s.id !== scoutId));
+    setDepthChart(prev => {
+      const updated = {};
+      for (const [pos, slots] of Object.entries(prev)) {
+        updated[pos] = slots.filter(s => s.id !== scoutId);
+      }
+      return updated;
+    });
+  };
+
   // Add or update a tag for a player
   const setPlayerTag = (playerId, tagType, tagValue) => {
     setPlayers(prevPlayers => prevPlayers.map(player =>
@@ -247,6 +326,8 @@ export const SquadProvider = ({ children }) => {
     loading,
     seasons,
     currentSeason,
+    depthChart,
+    planningScouts,
     importSquadData,
     clearSquadData,
     clearAllHistoricalData,
@@ -258,6 +339,12 @@ export const SquadProvider = ({ children }) => {
     getPlayersByRole,
     getBestPlayerForRole,
     setPlayerTag,
+    addToDepthChart,
+    removeFromDepthChart,
+    moveInDepthChart,
+    clearDepthChart,
+    addPlanningScout,
+    removePlanningScout,
   };
 
   return (
