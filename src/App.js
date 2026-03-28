@@ -7,6 +7,7 @@ import TacticalBoard from './pages/TacticalBoard';
 import MatchPlanner from './pages/MatchPlanner';
 import HistoricalOverview from './pages/HistoricalOverview';
 import Assistant from './pages/Assistant';
+import ScoutingPool from './pages/ScoutingPool';
 import { SquadProvider } from './contexts/SquadContext';
 import { TacticsProvider } from './contexts/TacticsContext';
 
@@ -23,6 +24,7 @@ function App() {
               <Route path="/match-planner" element={<MatchPlanner />} />
               <Route path="/historical" element={<HistoricalOverview />} />
               <Route path="/assistant" element={<Assistant />} />
+              <Route path="/scouting" element={<ScoutingPool />} />
             </Routes>
           </Layout>
         </Router>

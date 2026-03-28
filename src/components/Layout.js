@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  Home, 
-  Users, 
-  Zap, 
-  Calendar, 
-  MessageCircle, 
-  Menu, 
+  Home,
+  Users,
+  Zap,
+  Calendar,
+  MessageCircle,
+  Menu,
   X,
   Moon,
   Sun,
-  BarChart3
+  BarChart3,
+  Target
 } from 'lucide-react';
 
 const Layout = ({ children }) => {
@@ -36,6 +37,7 @@ const Layout = ({ children }) => {
     { name: 'Match Planner', href: '/match-planner', icon: Calendar },
     { name: 'Historical Overview', href: '/historical', icon: BarChart3 },
     { name: 'AI Assistant', href: '/assistant', icon: MessageCircle },
+    { name: 'Scouting Pool', href: '/scouting', icon: Target },
   ];
 
   const isActive = (href) => {
