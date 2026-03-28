@@ -99,6 +99,7 @@ export const TacticsProvider = ({ children }) => {
   const [savedBoards, setSavedBoards] = useState([]);
   const [matches, setMatches] = useState([]);
   const [preferredRoles, setPreferredRoles] = useState([]);
+  const [tacticSetup, setTacticSetupState] = useState(null);
 
   // Load saved data from localStorage on mount
   useEffect(() => {
@@ -128,6 +129,15 @@ export const TacticsProvider = ({ children }) => {
         console.error('Error loading preferred roles:', error);
       }
     }
+
+    const tacticSetupData = localStorage.getItem('fm24-tactic-setup');
+    if (tacticSetupData) {
+      try {
+        setTacticSetupState(JSON.parse(tacticSetupData));
+      } catch (error) {
+        console.error('Error loading tactic setup:', error);
+      }
+    }
   }, []);
 
   // Save data to localStorage when it changes
@@ -146,6 +156,16 @@ export const TacticsProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('fm24-preferred-roles', JSON.stringify(preferredRoles));
   }, [preferredRoles]);
+
+  useEffect(() => {
+    if (tacticSetup) {
+      localStorage.setItem('fm24-tactic-setup', JSON.stringify(tacticSetup));
+    }
+  }, [tacticSetup]);
+
+  const setTacticSetup = (setup) => {
+    setTacticSetupState(setup);
+  };
 
   // Preferred roles functions
   const addPreferredRole = (role) => {
@@ -340,6 +360,8 @@ export const TacticsProvider = ({ children }) => {
     addPreferredRole,
     removePreferredRole,
     clearPreferredRoles,
+    tacticSetup,
+    setTacticSetup,
   };
 
   return (
