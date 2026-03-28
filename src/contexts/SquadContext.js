@@ -289,6 +289,32 @@ export const SquadProvider = ({ children }) => {
     });
   };
 
+  // Move or swap a player across positions (used by drag-and-drop)
+  const movePlayerAcrossDepthChart = (fromSlotId, fromIndex, toSlotId, toIndex) => {
+    setDepthChart(prev => {
+      if (fromSlotId === toSlotId) {
+        const slots = [...(prev[fromSlotId] || [])];
+        const [moved] = slots.splice(fromIndex, 1);
+        slots.splice(toIndex, 0, moved);
+        return { ...prev, [fromSlotId]: slots };
+      }
+      const fromSlots = [...(prev[fromSlotId] || [])];
+      const toSlots   = [...(prev[toSlotId]   || [])];
+      const movedPlayer = fromSlots[fromIndex];
+      if (toIndex < toSlots.length) {
+        // Target is filled — swap
+        const targetPlayer = toSlots[toIndex];
+        fromSlots[fromIndex] = targetPlayer;
+        toSlots[toIndex] = movedPlayer;
+      } else {
+        // Target is empty — move
+        fromSlots.splice(fromIndex, 1);
+        toSlots.push(movedPlayer);
+      }
+      return { ...prev, [fromSlotId]: fromSlots, [toSlotId]: toSlots };
+    });
+  };
+
   const clearDepthChart = () => {
     setDepthChart({});
     localStorage.removeItem('fm24-depth-chart');
@@ -342,6 +368,7 @@ export const SquadProvider = ({ children }) => {
     addToDepthChart,
     removeFromDepthChart,
     moveInDepthChart,
+    movePlayerAcrossDepthChart,
     clearDepthChart,
     addPlanningScout,
     removePlanningScout,
