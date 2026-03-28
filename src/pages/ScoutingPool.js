@@ -1,16 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Upload, Search, X } from 'lucide-react';
-
-const POSITION_GROUPS = ['All', 'GK', 'Defender', 'Wing Back', 'Def. Mid', 'Midfielder', 'Att. Mid', 'Striker'];
-const POSITION_MAP = {
-  'GK': ['GK'],
-  'Defender': ['D'],
-  'Wing Back': ['WB'],
-  'Def. Mid': ['DM'],
-  'Midfielder': ['M'],
-  'Att. Mid': ['AM'],
-  'Striker': ['ST'],
-};
+import { ROLE_NAMES, ROLE_FORMULAS } from '../utils/roleCalculations';
 
 const KEY_ATTRS = ['Pac', 'Acc', 'Sta', 'Str', 'Dri', 'Fin', 'Pas', 'Tck', 'Mar', 'Pos', 'Ant', 'Dec', 'Vis', 'Wor', 'Tec'];
 
@@ -21,6 +11,14 @@ const getAttrColor = (value) => {
   if (n >= 15) return 'text-blue-500 dark:text-blue-400';
   if (n >= 12) return 'text-green-600 dark:text-green-400';
   if (n >= 8)  return 'text-gray-600 dark:text-gray-300';
+  return 'text-red-500 dark:text-red-400';
+};
+
+const getRoleScoreColor = (score) => {
+  if (score >= 15) return 'text-yellow-500 dark:text-yellow-400';
+  if (score >= 13) return 'text-blue-500 dark:text-blue-400';
+  if (score >= 11) return 'text-green-600 dark:text-green-400';
+  if (score >= 8)  return 'text-gray-600 dark:text-gray-300';
   return 'text-red-500 dark:text-red-400';
 };
 
@@ -43,19 +41,17 @@ const parseHTML = (html) => {
   }, []);
 };
 
-const matchesPosition = (player, group) => {
-  if (group === 'All') return true;
-  const pos = player['Position'] || '';
-  const codes = POSITION_MAP[group] || [];
-  return pos.split(',').some(part => {
-    const code = part.trim().split(/[\s(]/)[0];
-    return codes.includes(code);
-  });
-};
+// Build sorted role options: "All" first, then all roles alphabetically by display name
+const ROLE_OPTIONS = [
+  { key: 'All', label: 'All Roles' },
+  ...Object.entries(ROLE_NAMES)
+    .sort((a, b) => a[1].localeCompare(b[1]))
+    .map(([key, label]) => ({ key, label }))
+];
 
 const ScoutingPool = () => {
   const [players, setPlayers] = useState([]);
-  const [positionFilter, setPositionFilter] = useState('All');
+  const [roleFilter, setRoleFilter] = useState('All');
   const [search, setSearch] = useState('');
   const [isDragging, setIsDragging] = useState(false);
 
@@ -65,18 +61,30 @@ const ScoutingPool = () => {
     reader.onload = (e) => {
       const parsed = parseHTML(e.target.result);
       setPlayers(parsed);
-      setPositionFilter('All');
+      setRoleFilter('All');
       setSearch('');
     };
     reader.readAsText(file);
   }, []);
 
-  const filtered = players.filter(p =>
-    matchesPosition(p, positionFilter) &&
-    (!search ||
+  const displayedPlayers = useMemo(() => {
+    let result = players.filter(p =>
+      !search ||
       p['Name']?.toLowerCase().includes(search.toLowerCase()) ||
-      p['Club']?.toLowerCase().includes(search.toLowerCase()))
-  );
+      p['Club']?.toLowerCase().includes(search.toLowerCase())
+    );
+
+    if (roleFilter !== 'All' && ROLE_FORMULAS[roleFilter]) {
+      const formula = ROLE_FORMULAS[roleFilter];
+      result = result
+        .map(p => ({ ...p, _roleScore: formula(p) }))
+        .sort((a, b) => b._roleScore - a._roleScore);
+    } else {
+      result = result.map(p => ({ ...p, _roleScore: null }));
+    }
+
+    return result;
+  }, [players, roleFilter, search]);
 
   return (
     <div className="space-y-4">
@@ -84,7 +92,7 @@ const ScoutingPool = () => {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Scouting Pool</h1>
         {players.length > 0 && (
           <span className="text-sm text-gray-500 dark:text-gray-400">
-            {filtered.length} / {players.length} players
+            {displayedPlayers.length} / {players.length} players
           </span>
         )}
       </div>
@@ -132,16 +140,16 @@ const ScoutingPool = () => {
               />
             </div>
             <select
-              value={positionFilter}
-              onChange={(e) => setPositionFilter(e.target.value)}
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
               className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 text-sm"
             >
-              {POSITION_GROUPS.map(g => (
-                <option key={g} value={g}>{g}</option>
+              {ROLE_OPTIONS.map(({ key, label }) => (
+                <option key={key} value={key}>{label}</option>
               ))}
             </select>
             <button
-              onClick={() => { setPlayers([]); setSearch(''); setPositionFilter('All'); }}
+              onClick={() => { setPlayers([]); setSearch(''); setRoleFilter('All'); }}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 border border-gray-300 dark:border-gray-600 hover:border-red-300 dark:hover:border-red-500 transition-colors"
             >
               <X className="w-4 h-4" /> Clear
@@ -154,6 +162,9 @@ const ScoutingPool = () => {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                    {roleFilter !== 'All' && (
+                      <th className="px-3 py-3 text-center font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap">Score</th>
+                    )}
                     <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap">Name</th>
                     <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap">Position</th>
                     <th className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Age</th>
@@ -169,11 +180,13 @@ const ScoutingPool = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
-                  {filtered.map((player, i) => (
-                    <tr
-                      key={i}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
-                    >
+                  {displayedPlayers.map((player, i) => (
+                    <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                      {roleFilter !== 'All' && (
+                        <td className={`px-3 py-3 text-center font-bold whitespace-nowrap ${getRoleScoreColor(player._roleScore)}`}>
+                          {player._roleScore != null ? player._roleScore.toFixed(1) : '-'}
+                        </td>
+                      )}
                       <td className="px-4 py-3 font-semibold text-gray-900 dark:text-white whitespace-nowrap">
                         {player['Name']}
                       </td>
@@ -205,7 +218,7 @@ const ScoutingPool = () => {
                 </tbody>
               </table>
 
-              {filtered.length === 0 && (
+              {displayedPlayers.length === 0 && (
                 <div className="text-center py-16 text-gray-500 dark:text-gray-400">
                   No players match the current filters
                 </div>
