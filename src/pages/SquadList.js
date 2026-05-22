@@ -18,7 +18,13 @@ import {
 
 const SquadList = () => {
   const { players, loading, importSquadData, clearSquadData, setPlayerTag, currentSeason, createNewSeason } = useSquad();
-  const { preferredRoles } = useTactics();
+  const { preferredRoles, tacticSetup } = useTactics();
+
+  // Derive roles from the saved tactic setup (Dashboard), falling back to manually set preferredRoles
+  const tacticRoles = tacticSetup?.slots
+    ? [...new Set(tacticSetup.slots.map(s => s.roleKey))]
+    : [];
+  const effectiveRoles = tacticRoles.length > 0 ? tacticRoles : preferredRoles;
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
@@ -112,7 +118,7 @@ const SquadList = () => {
       } else if (tableSortBy === 'age') {
         aValue = parseInt(a.Age) || 0;
         bValue = parseInt(b.Age) || 0;
-      } else if (preferredRoles.includes(tableSortBy)) {
+      } else if (effectiveRoles.includes(tableSortBy)) {
         aValue = tableSortBy === 'GK'
           ? normalizeGoalkeeperScore(a.roleScores?.GK || 0)
           : a.roleScores?.[tableSortBy] || 0;
@@ -365,15 +371,19 @@ const SquadList = () => {
                     onChange={(e) => setSelectedRole(e.target.value)}
                     className="pl-10 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent appearance-none"
                   >
-                    <option value="">Selected Roles</option>
-                    {preferredRoles.length > 0 ? (
-                      preferredRoles.map(role => (
-                          <option key={role} value={role}>
+                    <option value="">
+                      {tacticRoles.length > 0
+                        ? `Tactic Roles (${tacticSetup.formation})`
+                        : 'Selected Roles'}
+                    </option>
+                    {effectiveRoles.length > 0 ? (
+                      effectiveRoles.map(role => (
+                        <option key={role} value={role}>
                           {ROLE_NAMES[role] || role}
-                          </option>
+                        </option>
                       ))
                     ) : (
-                      <option disabled value="">No preferred roles selected</option>
+                      <option disabled value="">No tactic saved — go to Dashboard</option>
                     )}
                   </select>
                 </div>
@@ -573,16 +583,16 @@ const SquadList = () => {
                     </div>
                   </div>
 
-                    {/* Preferred Roles */}
+                    {/* Tactic / Preferred Roles */}
                     <div className="space-y-2 h-60 overflow-y-auto flex flex-col justify-start">
                     <h4 className="font-medium text-gray-900 dark:text-white text-sm">
-                        Preferred Roles:
+                      {tacticRoles.length > 0 ? `Tactic Roles (${tacticSetup.formation}):` : 'Preferred Roles:'}
                     </h4>
-                      {preferredRoles.length > 0 ? (
+                      {effectiveRoles.length > 0 ? (
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                          {preferredRoles
+                          {effectiveRoles
                             .map((role) => {
-                              const roleScore = role === 'GK' 
+                              const roleScore = role === 'GK'
                                 ? normalizeGoalkeeperScore(player.roleScores?.GK || 0)
                                 : player.roleScores?.[role] || 0;
                               return { role, roleScore };
@@ -599,7 +609,7 @@ const SquadList = () => {
                     </div>
                       ) : (
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          No preferred roles set. Go to Dashboard to select your preferred roles.
+                          No tactic saved. Go to Dashboard to set up your formation and roles.
                         </div>
                       )}
                   </div>
@@ -670,7 +680,7 @@ const SquadList = () => {
                       >
                         Age {tableSortBy === 'age' && (tableSortOrder === 'asc' ? <SortAsc className="inline w-3 h-3 ml-1" /> : <SortDesc className="inline w-3 h-3 ml-1" />)}
                       </th>
-                      {preferredRoles.map(role => (
+                      {effectiveRoles.map(role => (
                         <th
                           key={role}
                           className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -735,7 +745,7 @@ const SquadList = () => {
                         <td className="px-4 py-2 whitespace-nowrap font-semibold text-gray-900 dark:text-white">{player.Name || 'Unknown Player'}</td>
                         <td className="px-4 py-2 whitespace-nowrap text-gray-700 dark:text-gray-300">{player.Position}</td>
                         <td className="px-4 py-2 whitespace-nowrap text-gray-700 dark:text-gray-300">{player.Age}</td>
-                        {preferredRoles.map(role => {
+                        {effectiveRoles.map(role => {
                           const roleScore = role === 'GK'
                             ? normalizeGoalkeeperScore(player.roleScores?.GK || 0)
                             : player.roleScores?.[role] || 0;
