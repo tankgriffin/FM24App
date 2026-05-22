@@ -11,87 +11,303 @@ export const useTactics = () => {
 };
 
 // Preset formations
+// Coordinates: x = left (0) to right (100), y = attack (0) to defence/GK (100)
 export const FORMATIONS = {
+
+  // ── 4-back ───────────────────────────────────────────────────────────────
+
   '4-4-2': {
     name: '4-4-2',
     positions: [
-      { id: 'gk', role: 'GK', x: 50, y: 90 },
-      { id: 'lb', role: 'FB', x: 20, y: 75 },
+      { id: 'gk',  role: 'GK', x: 50, y: 90 },
+      { id: 'lb',  role: 'FB', x: 20, y: 75 },
       { id: 'lcb', role: 'CD', x: 35, y: 75 },
       { id: 'rcb', role: 'CD', x: 65, y: 75 },
-      { id: 'rb', role: 'FB', x: 80, y: 75 },
-      { id: 'lm', role: 'WM', x: 20, y: 50 },
+      { id: 'rb',  role: 'FB', x: 80, y: 75 },
+      { id: 'lm',  role: 'WM', x: 20, y: 50 },
       { id: 'lcm', role: 'CM', x: 35, y: 50 },
       { id: 'rcm', role: 'CM', x: 65, y: 50 },
-      { id: 'rm', role: 'WM', x: 80, y: 50 },
+      { id: 'rm',  role: 'WM', x: 80, y: 50 },
       { id: 'lst', role: 'CF', x: 35, y: 25 },
       { id: 'rst', role: 'CF', x: 65, y: 25 },
-    ]
+    ],
   },
+
+  '4-4-1-1': {
+    name: '4-4-1-1',
+    positions: [
+      { id: 'gk',  role: 'GK', x: 50, y: 90 },
+      { id: 'lb',  role: 'FB', x: 20, y: 75 },
+      { id: 'lcb', role: 'CD', x: 35, y: 75 },
+      { id: 'rcb', role: 'CD', x: 65, y: 75 },
+      { id: 'rb',  role: 'FB', x: 80, y: 75 },
+      { id: 'lm',  role: 'WM', x: 20, y: 52 },
+      { id: 'lcm', role: 'CM', x: 37, y: 52 },
+      { id: 'rcm', role: 'CM', x: 63, y: 52 },
+      { id: 'rm',  role: 'WM', x: 80, y: 52 },
+      { id: 'cam', role: 'AM', x: 50, y: 37 },
+      { id: 'st',  role: 'CF', x: 50, y: 22 },
+    ],
+  },
+
+  '4-5-1': {
+    name: '4-5-1',
+    positions: [
+      { id: 'gk',  role: 'GK', x: 50, y: 90 },
+      { id: 'lb',  role: 'FB', x: 20, y: 75 },
+      { id: 'lcb', role: 'CD', x: 35, y: 75 },
+      { id: 'rcb', role: 'CD', x: 65, y: 75 },
+      { id: 'rb',  role: 'FB', x: 80, y: 75 },
+      { id: 'lm',  role: 'WM', x: 14, y: 50 },
+      { id: 'lcm', role: 'CM', x: 34, y: 52 },
+      { id: 'cm',  role: 'CM', x: 50, y: 55 },
+      { id: 'rcm', role: 'CM', x: 66, y: 52 },
+      { id: 'rm',  role: 'WM', x: 86, y: 50 },
+      { id: 'st',  role: 'CF', x: 50, y: 22 },
+    ],
+  },
+
   '4-3-3': {
     name: '4-3-3',
     positions: [
-      { id: 'gk', role: 'GK', x: 50, y: 90 },
-      { id: 'lb', role: 'FB', x: 20, y: 75 },
+      { id: 'gk',  role: 'GK', x: 50, y: 90 },
+      { id: 'lb',  role: 'FB', x: 20, y: 75 },
       { id: 'lcb', role: 'CD', x: 35, y: 75 },
       { id: 'rcb', role: 'CD', x: 65, y: 75 },
-      { id: 'rb', role: 'FB', x: 80, y: 75 },
-      { id: 'dm', role: 'DLP', x: 50, y: 60 },
+      { id: 'rb',  role: 'FB', x: 80, y: 75 },
+      { id: 'dm',  role: 'DLP', x: 50, y: 60 },
       { id: 'lcm', role: 'CM', x: 35, y: 45 },
       { id: 'rcm', role: 'CM', x: 65, y: 45 },
-      { id: 'lw', role: 'W', x: 20, y: 25 },
-      { id: 'st', role: 'CF', x: 50, y: 25 },
-      { id: 'rw', role: 'W', x: 80, y: 25 },
-    ]
+      { id: 'lw',  role: 'W',  x: 20, y: 25 },
+      { id: 'st',  role: 'CF', x: 50, y: 25 },
+      { id: 'rw',  role: 'W',  x: 80, y: 25 },
+    ],
   },
+
+  '4-3-2-1': {
+    name: '4-3-2-1',
+    positions: [
+      { id: 'gk',  role: 'GK', x: 50, y: 90 },
+      { id: 'lb',  role: 'FB', x: 20, y: 75 },
+      { id: 'lcb', role: 'CD', x: 35, y: 75 },
+      { id: 'rcb', role: 'CD', x: 65, y: 75 },
+      { id: 'rb',  role: 'FB', x: 80, y: 75 },
+      { id: 'lcm', role: 'CM', x: 30, y: 58 },
+      { id: 'cm',  role: 'CM', x: 50, y: 60 },
+      { id: 'rcm', role: 'CM', x: 70, y: 58 },
+      { id: 'lam', role: 'AM', x: 35, y: 40 },
+      { id: 'ram', role: 'AM', x: 65, y: 40 },
+      { id: 'st',  role: 'CF', x: 50, y: 22 },
+    ],
+  },
+
+  '4-3-1-2': {
+    name: '4-3-1-2',
+    positions: [
+      { id: 'gk',  role: 'GK', x: 50, y: 90 },
+      { id: 'lb',  role: 'FB', x: 20, y: 75 },
+      { id: 'lcb', role: 'CD', x: 35, y: 75 },
+      { id: 'rcb', role: 'CD', x: 65, y: 75 },
+      { id: 'rb',  role: 'FB', x: 80, y: 75 },
+      { id: 'lcm', role: 'CM', x: 30, y: 58 },
+      { id: 'cm',  role: 'CM', x: 50, y: 60 },
+      { id: 'rcm', role: 'CM', x: 70, y: 58 },
+      { id: 'cam', role: 'AM', x: 50, y: 42 },
+      { id: 'lst', role: 'CF', x: 37, y: 22 },
+      { id: 'rst', role: 'CF', x: 63, y: 22 },
+    ],
+  },
+
   '4-2-3-1': {
     name: '4-2-3-1',
     positions: [
-      { id: 'gk', role: 'GK', x: 50, y: 90 },
-      { id: 'lb', role: 'FB', x: 20, y: 75 },
+      { id: 'gk',  role: 'GK', x: 50, y: 90 },
+      { id: 'lb',  role: 'FB', x: 20, y: 75 },
       { id: 'lcb', role: 'CD', x: 35, y: 75 },
       { id: 'rcb', role: 'CD', x: 65, y: 75 },
-      { id: 'rb', role: 'FB', x: 80, y: 75 },
-      { id: 'ldm', role: 'CM', x: 35, y: 60 },
-      { id: 'rdm', role: 'CM', x: 65, y: 60 },
+      { id: 'rb',  role: 'FB', x: 80, y: 75 },
+      { id: 'ldm', role: 'DLP', x: 35, y: 60 },
+      { id: 'rdm', role: 'DLP', x: 65, y: 60 },
       { id: 'lam', role: 'AM', x: 25, y: 40 },
       { id: 'cam', role: 'AM', x: 50, y: 40 },
       { id: 'ram', role: 'AM', x: 75, y: 40 },
-      { id: 'st', role: 'CF', x: 50, y: 25 },
-    ]
+      { id: 'st',  role: 'CF', x: 50, y: 22 },
+    ],
   },
-  '3-5-2': {
-    name: '3-5-2',
-    positions: [
-      { id: 'gk', role: 'GK', x: 50, y: 90 },
-      { id: 'lcb', role: 'CD', x: 25, y: 75 },
-      { id: 'cb', role: 'CD', x: 50, y: 75 },
-      { id: 'rcb', role: 'CD', x: 75, y: 75 },
-      { id: 'lwb', role: 'WB', x: 15, y: 55 },
-      { id: 'lcm', role: 'CM', x: 35, y: 50 },
-      { id: 'cm', role: 'CM', x: 50, y: 50 },
-      { id: 'rcm', role: 'CM', x: 65, y: 50 },
-      { id: 'rwb', role: 'WB', x: 85, y: 55 },
-      { id: 'lst', role: 'CF', x: 35, y: 25 },
-      { id: 'rst', role: 'CF', x: 65, y: 25 },
-    ]
-  },
+
   '4-1-4-1': {
     name: '4-1-4-1',
     positions: [
-      { id: 'gk', role: 'GK', x: 50, y: 90 },
-      { id: 'lb', role: 'FB', x: 20, y: 75 },
-      { id: 'lcb', role: 'CD', x: 35, y: 75 },
-      { id: 'rcb', role: 'CD', x: 65, y: 75 },
-      { id: 'rb', role: 'FB', x: 80, y: 75 },
-      { id: 'dm', role: 'DLP', x: 50, y: 60 },
-      { id: 'lm', role: 'WM', x: 20, y: 40 },
-      { id: 'lcm', role: 'CM', x: 35, y: 40 },
-      { id: 'rcm', role: 'CM', x: 65, y: 40 },
-      { id: 'rm', role: 'WM', x: 80, y: 40 },
-      { id: 'st', role: 'CF', x: 50, y: 25 },
-    ]
-  }
+      { id: 'gk',  role: 'GK',  x: 50, y: 90 },
+      { id: 'lb',  role: 'FB',  x: 20, y: 75 },
+      { id: 'lcb', role: 'CD',  x: 35, y: 75 },
+      { id: 'rcb', role: 'CD',  x: 65, y: 75 },
+      { id: 'rb',  role: 'FB',  x: 80, y: 75 },
+      { id: 'dm',  role: 'DLP', x: 50, y: 62 },
+      { id: 'lm',  role: 'WM',  x: 20, y: 48 },
+      { id: 'lcm', role: 'CM',  x: 36, y: 48 },
+      { id: 'rcm', role: 'CM',  x: 64, y: 48 },
+      { id: 'rm',  role: 'WM',  x: 80, y: 48 },
+      { id: 'st',  role: 'CF',  x: 50, y: 22 },
+    ],
+  },
+
+  '4-1-2-1-2': {
+    name: '4-1-2-1-2',
+    positions: [
+      { id: 'gk',  role: 'GK',  x: 50, y: 90 },
+      { id: 'lb',  role: 'FB',  x: 20, y: 75 },
+      { id: 'lcb', role: 'CD',  x: 35, y: 75 },
+      { id: 'rcb', role: 'CD',  x: 65, y: 75 },
+      { id: 'rb',  role: 'FB',  x: 80, y: 75 },
+      { id: 'dm',  role: 'DLP', x: 50, y: 62 },
+      { id: 'lcm', role: 'CM',  x: 28, y: 50 },
+      { id: 'rcm', role: 'CM',  x: 72, y: 50 },
+      { id: 'cam', role: 'AM',  x: 50, y: 37 },
+      { id: 'lst', role: 'CF',  x: 37, y: 22 },
+      { id: 'rst', role: 'CF',  x: 63, y: 22 },
+    ],
+  },
+
+  // ── 3-back ───────────────────────────────────────────────────────────────
+
+  '3-5-2': {
+    name: '3-5-2',
+    positions: [
+      { id: 'gk',  role: 'GK', x: 50, y: 90 },
+      { id: 'lcb', role: 'CD', x: 25, y: 76 },
+      { id: 'cb',  role: 'CD', x: 50, y: 76 },
+      { id: 'rcb', role: 'CD', x: 75, y: 76 },
+      { id: 'lwb', role: 'WB', x: 14, y: 55 },
+      { id: 'lcm', role: 'CM', x: 35, y: 52 },
+      { id: 'cm',  role: 'CM', x: 50, y: 52 },
+      { id: 'rcm', role: 'CM', x: 65, y: 52 },
+      { id: 'rwb', role: 'WB', x: 86, y: 55 },
+      { id: 'lst', role: 'CF', x: 35, y: 25 },
+      { id: 'rst', role: 'CF', x: 65, y: 25 },
+    ],
+  },
+
+  '3-4-3': {
+    name: '3-4-3',
+    positions: [
+      { id: 'gk',  role: 'GK', x: 50, y: 90 },
+      { id: 'lcb', role: 'CD', x: 25, y: 76 },
+      { id: 'cb',  role: 'CD', x: 50, y: 76 },
+      { id: 'rcb', role: 'CD', x: 75, y: 76 },
+      { id: 'lwb', role: 'WB', x: 12, y: 57 },
+      { id: 'lcm', role: 'CM', x: 38, y: 55 },
+      { id: 'rcm', role: 'CM', x: 62, y: 55 },
+      { id: 'rwb', role: 'WB', x: 88, y: 57 },
+      { id: 'lw',  role: 'W',  x: 22, y: 25 },
+      { id: 'st',  role: 'CF', x: 50, y: 20 },
+      { id: 'rw',  role: 'W',  x: 78, y: 25 },
+    ],
+  },
+
+  '3-4-2-1': {
+    name: '3-4-2-1',
+    positions: [
+      { id: 'gk',  role: 'GK', x: 50, y: 90 },
+      { id: 'lcb', role: 'CD', x: 25, y: 76 },
+      { id: 'cb',  role: 'CD', x: 50, y: 76 },
+      { id: 'rcb', role: 'CD', x: 75, y: 76 },
+      { id: 'lwb', role: 'WB', x: 12, y: 57 },
+      { id: 'lcm', role: 'CM', x: 37, y: 54 },
+      { id: 'rcm', role: 'CM', x: 63, y: 54 },
+      { id: 'rwb', role: 'WB', x: 88, y: 57 },
+      { id: 'lam', role: 'AM', x: 35, y: 36 },
+      { id: 'ram', role: 'AM', x: 65, y: 36 },
+      { id: 'st',  role: 'CF', x: 50, y: 20 },
+    ],
+  },
+
+  '3-4-1-2': {
+    name: '3-4-1-2',
+    positions: [
+      { id: 'gk',  role: 'GK', x: 50, y: 90 },
+      { id: 'lcb', role: 'CD', x: 25, y: 76 },
+      { id: 'cb',  role: 'CD', x: 50, y: 76 },
+      { id: 'rcb', role: 'CD', x: 75, y: 76 },
+      { id: 'lwb', role: 'WB', x: 12, y: 57 },
+      { id: 'lcm', role: 'CM', x: 38, y: 55 },
+      { id: 'rcm', role: 'CM', x: 62, y: 55 },
+      { id: 'rwb', role: 'WB', x: 88, y: 57 },
+      { id: 'cam', role: 'AM', x: 50, y: 40 },
+      { id: 'lst', role: 'CF', x: 37, y: 22 },
+      { id: 'rst', role: 'CF', x: 63, y: 22 },
+    ],
+  },
+
+  '3-1-4-2': {
+    name: '3-1-4-2',
+    positions: [
+      { id: 'gk',  role: 'GK',  x: 50, y: 90 },
+      { id: 'lcb', role: 'CD',  x: 25, y: 76 },
+      { id: 'cb',  role: 'CD',  x: 50, y: 76 },
+      { id: 'rcb', role: 'CD',  x: 75, y: 76 },
+      { id: 'dm',  role: 'DLP', x: 50, y: 63 },
+      { id: 'lm',  role: 'WM',  x: 18, y: 50 },
+      { id: 'lcm', role: 'CM',  x: 38, y: 52 },
+      { id: 'rcm', role: 'CM',  x: 62, y: 52 },
+      { id: 'rm',  role: 'WM',  x: 82, y: 50 },
+      { id: 'lst', role: 'CF',  x: 37, y: 22 },
+      { id: 'rst', role: 'CF',  x: 63, y: 22 },
+    ],
+  },
+
+  // ── 5-back (3 CBs + 2 WBs) ───────────────────────────────────────────────
+
+  '5-4-1': {
+    name: '5-4-1',
+    positions: [
+      { id: 'gk',  role: 'GK', x: 50, y: 90 },
+      { id: 'lwb', role: 'WB', x: 12, y: 72 },
+      { id: 'lcb', role: 'CD', x: 30, y: 77 },
+      { id: 'cb',  role: 'CD', x: 50, y: 78 },
+      { id: 'rcb', role: 'CD', x: 70, y: 77 },
+      { id: 'rwb', role: 'WB', x: 88, y: 72 },
+      { id: 'lm',  role: 'WM', x: 20, y: 50 },
+      { id: 'lcm', role: 'CM', x: 38, y: 52 },
+      { id: 'rcm', role: 'CM', x: 62, y: 52 },
+      { id: 'rm',  role: 'WM', x: 80, y: 50 },
+      { id: 'st',  role: 'CF', x: 50, y: 22 },
+    ],
+  },
+
+  '5-3-2': {
+    name: '5-3-2',
+    positions: [
+      { id: 'gk',  role: 'GK', x: 50, y: 90 },
+      { id: 'lwb', role: 'WB', x: 12, y: 72 },
+      { id: 'lcb', role: 'CD', x: 30, y: 77 },
+      { id: 'cb',  role: 'CD', x: 50, y: 78 },
+      { id: 'rcb', role: 'CD', x: 70, y: 77 },
+      { id: 'rwb', role: 'WB', x: 88, y: 72 },
+      { id: 'lcm', role: 'CM', x: 30, y: 52 },
+      { id: 'cm',  role: 'CM', x: 50, y: 50 },
+      { id: 'rcm', role: 'CM', x: 70, y: 52 },
+      { id: 'lst', role: 'CF', x: 37, y: 22 },
+      { id: 'rst', role: 'CF', x: 63, y: 22 },
+    ],
+  },
+
+  '5-2-3': {
+    name: '5-2-3',
+    positions: [
+      { id: 'gk',  role: 'GK', x: 50, y: 90 },
+      { id: 'lwb', role: 'WB', x: 12, y: 72 },
+      { id: 'lcb', role: 'CD', x: 30, y: 77 },
+      { id: 'cb',  role: 'CD', x: 50, y: 78 },
+      { id: 'rcb', role: 'CD', x: 70, y: 77 },
+      { id: 'rwb', role: 'WB', x: 88, y: 72 },
+      { id: 'lcm', role: 'CM', x: 38, y: 55 },
+      { id: 'rcm', role: 'CM', x: 62, y: 55 },
+      { id: 'lw',  role: 'W',  x: 22, y: 25 },
+      { id: 'st',  role: 'CF', x: 50, y: 22 },
+      { id: 'rw',  role: 'W',  x: 78, y: 25 },
+    ],
+  },
 };
 
 export const TacticsProvider = ({ children }) => {

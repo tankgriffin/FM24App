@@ -4,88 +4,199 @@ import { useSquad } from '../contexts/SquadContext';
 import { Save, Download, Upload, RotateCcw, Plus } from 'lucide-react';
 import SquadAnalysisTable from '../components/SquadAnalysisTable';
 
-// Common formations with positions (x, y coordinates as percentages)
+// Formations for tactical board (landscape: x = defensive end → attacking end, y = top → bottom)
 const FORMATIONS = {
   '4-4-2': {
     name: '4-4-2',
     positions: [
-      { x: 10, y: 50, role: 'GK' }, // Goalkeeper
-      { x: 25, y: 20, role: 'FB' }, // Right Back
-      { x: 25, y: 35, role: 'CB' }, // Center Back
-      { x: 25, y: 65, role: 'CB' }, // Center Back
-      { x: 25, y: 80, role: 'FB' }, // Left Back
-      { x: 50, y: 25, role: 'WM' }, // Right Mid
-      { x: 50, y: 40, role: 'CM' }, // Center Mid
-      { x: 50, y: 60, role: 'CM' }, // Center Mid
-      { x: 50, y: 75, role: 'WM' }, // Left Mid
-      { x: 75, y: 40, role: 'ST' }, // Striker
-      { x: 75, y: 60, role: 'ST' }, // Striker
-    ]
+      { x: 10, y: 50, role: 'GK' },
+      { x: 25, y: 20, role: 'FB' }, { x: 25, y: 37, role: 'CB' },
+      { x: 25, y: 63, role: 'CB' }, { x: 25, y: 80, role: 'FB' },
+      { x: 50, y: 20, role: 'WM' }, { x: 50, y: 40, role: 'CM' },
+      { x: 50, y: 60, role: 'CM' }, { x: 50, y: 80, role: 'WM' },
+      { x: 75, y: 37, role: 'ST' }, { x: 75, y: 63, role: 'ST' },
+    ],
+  },
+  '4-4-1-1': {
+    name: '4-4-1-1',
+    positions: [
+      { x: 10, y: 50, role: 'GK' },
+      { x: 25, y: 20, role: 'FB' }, { x: 25, y: 37, role: 'CB' },
+      { x: 25, y: 63, role: 'CB' }, { x: 25, y: 80, role: 'FB' },
+      { x: 50, y: 20, role: 'WM' }, { x: 50, y: 40, role: 'CM' },
+      { x: 50, y: 60, role: 'CM' }, { x: 50, y: 80, role: 'WM' },
+      { x: 67, y: 50, role: 'AM' },
+      { x: 80, y: 50, role: 'ST' },
+    ],
+  },
+  '4-5-1': {
+    name: '4-5-1',
+    positions: [
+      { x: 10, y: 50, role: 'GK' },
+      { x: 25, y: 20, role: 'FB' }, { x: 25, y: 37, role: 'CB' },
+      { x: 25, y: 63, role: 'CB' }, { x: 25, y: 80, role: 'FB' },
+      { x: 50, y: 12, role: 'WM' }, { x: 50, y: 32, role: 'CM' },
+      { x: 50, y: 50, role: 'CM' },
+      { x: 50, y: 68, role: 'CM' }, { x: 50, y: 88, role: 'WM' },
+      { x: 80, y: 50, role: 'ST' },
+    ],
   },
   '4-3-3': {
     name: '4-3-3',
     positions: [
       { x: 10, y: 50, role: 'GK' },
-      { x: 25, y: 20, role: 'FB' },
-      { x: 25, y: 35, role: 'CB' },
-      { x: 25, y: 65, role: 'CB' },
-      { x: 25, y: 80, role: 'FB' },
-      { x: 45, y: 50, role: 'DM' }, // Defensive midfielder
-      { x: 60, y: 35, role: 'CM' }, // Central midfielder
-      { x: 60, y: 65, role: 'CM' }, // Central midfielder
-      { x: 75, y: 25, role: 'W' },
-      { x: 75, y: 50, role: 'ST' },
-      { x: 75, y: 75, role: 'W' },
-    ]
+      { x: 25, y: 20, role: 'FB' }, { x: 25, y: 37, role: 'CB' },
+      { x: 25, y: 63, role: 'CB' }, { x: 25, y: 80, role: 'FB' },
+      { x: 48, y: 50, role: 'DM' },
+      { x: 62, y: 33, role: 'CM' }, { x: 62, y: 67, role: 'CM' },
+      { x: 78, y: 20, role: 'W'  }, { x: 78, y: 50, role: 'ST' }, { x: 78, y: 80, role: 'W' },
+    ],
   },
-  '3-5-2': {
-    name: '3-5-2',
+  '4-3-2-1': {
+    name: '4-3-2-1',
     positions: [
       { x: 10, y: 50, role: 'GK' },
-      { x: 25, y: 30, role: 'CB' },
-      { x: 25, y: 50, role: 'CB' },
-      { x: 25, y: 70, role: 'CB' },
-      { x: 45, y: 15, role: 'WB' }, // Wing back
-      { x: 45, y: 35, role: 'DM' }, // Defensive midfielder
-      { x: 45, y: 65, role: 'DM' }, // Defensive midfielder
-      { x: 45, y: 85, role: 'WB' }, // Wing back
-      { x: 65, y: 50, role: 'AM' }, // Attacking midfielder
-      { x: 75, y: 40, role: 'ST' },
-      { x: 75, y: 60, role: 'ST' },
-    ]
+      { x: 25, y: 20, role: 'FB' }, { x: 25, y: 37, role: 'CB' },
+      { x: 25, y: 63, role: 'CB' }, { x: 25, y: 80, role: 'FB' },
+      { x: 48, y: 30, role: 'CM' }, { x: 48, y: 50, role: 'CM' }, { x: 48, y: 70, role: 'CM' },
+      { x: 67, y: 37, role: 'AM' }, { x: 67, y: 63, role: 'AM' },
+      { x: 80, y: 50, role: 'ST' },
+    ],
+  },
+  '4-3-1-2': {
+    name: '4-3-1-2',
+    positions: [
+      { x: 10, y: 50, role: 'GK' },
+      { x: 25, y: 20, role: 'FB' }, { x: 25, y: 37, role: 'CB' },
+      { x: 25, y: 63, role: 'CB' }, { x: 25, y: 80, role: 'FB' },
+      { x: 48, y: 30, role: 'CM' }, { x: 48, y: 50, role: 'CM' }, { x: 48, y: 70, role: 'CM' },
+      { x: 65, y: 50, role: 'AM' },
+      { x: 78, y: 37, role: 'ST' }, { x: 78, y: 63, role: 'ST' },
+    ],
   },
   '4-2-3-1': {
     name: '4-2-3-1',
     positions: [
       { x: 10, y: 50, role: 'GK' },
-      { x: 25, y: 20, role: 'FB' },
-      { x: 25, y: 35, role: 'CB' },
-      { x: 25, y: 65, role: 'CB' },
-      { x: 25, y: 80, role: 'FB' },
-      { x: 45, y: 35, role: 'DM' },
-      { x: 45, y: 65, role: 'DM' },
-      { x: 65, y: 25, role: 'AM' },
-      { x: 65, y: 50, role: 'AM' },
-      { x: 65, y: 75, role: 'AM' },
+      { x: 25, y: 20, role: 'FB' }, { x: 25, y: 37, role: 'CB' },
+      { x: 25, y: 63, role: 'CB' }, { x: 25, y: 80, role: 'FB' },
+      { x: 45, y: 37, role: 'DM' }, { x: 45, y: 63, role: 'DM' },
+      { x: 65, y: 20, role: 'AM' }, { x: 65, y: 50, role: 'AM' }, { x: 65, y: 80, role: 'AM' },
       { x: 80, y: 50, role: 'ST' },
-    ]
+    ],
+  },
+  '4-1-4-1': {
+    name: '4-1-4-1',
+    positions: [
+      { x: 10, y: 50, role: 'GK' },
+      { x: 25, y: 20, role: 'FB' }, { x: 25, y: 37, role: 'CB' },
+      { x: 25, y: 63, role: 'CB' }, { x: 25, y: 80, role: 'FB' },
+      { x: 45, y: 50, role: 'DM' },
+      { x: 60, y: 17, role: 'WM' }, { x: 60, y: 39, role: 'CM' },
+      { x: 60, y: 61, role: 'CM' }, { x: 60, y: 83, role: 'WM' },
+      { x: 80, y: 50, role: 'ST' },
+    ],
+  },
+  '4-1-2-1-2': {
+    name: '4-1-2-1-2',
+    positions: [
+      { x: 10, y: 50, role: 'GK' },
+      { x: 25, y: 20, role: 'FB' }, { x: 25, y: 37, role: 'CB' },
+      { x: 25, y: 63, role: 'CB' }, { x: 25, y: 80, role: 'FB' },
+      { x: 45, y: 50, role: 'DM' },
+      { x: 60, y: 33, role: 'CM' }, { x: 60, y: 67, role: 'CM' },
+      { x: 70, y: 50, role: 'AM' },
+      { x: 80, y: 37, role: 'ST' }, { x: 80, y: 63, role: 'ST' },
+    ],
+  },
+  '3-5-2': {
+    name: '3-5-2',
+    positions: [
+      { x: 10, y: 50, role: 'GK' },
+      { x: 25, y: 30, role: 'CB' }, { x: 25, y: 50, role: 'CB' }, { x: 25, y: 70, role: 'CB' },
+      { x: 48, y: 10, role: 'WB' }, { x: 48, y: 33, role: 'CM' },
+      { x: 48, y: 50, role: 'CM' },
+      { x: 48, y: 67, role: 'CM' }, { x: 48, y: 90, role: 'WB' },
+      { x: 75, y: 37, role: 'ST' }, { x: 75, y: 63, role: 'ST' },
+    ],
+  },
+  '3-4-3': {
+    name: '3-4-3',
+    positions: [
+      { x: 10, y: 50, role: 'GK' },
+      { x: 25, y: 30, role: 'CB' }, { x: 25, y: 50, role: 'CB' }, { x: 25, y: 70, role: 'CB' },
+      { x: 48, y: 10, role: 'WB' }, { x: 48, y: 37, role: 'CM' },
+      { x: 48, y: 63, role: 'CM' }, { x: 48, y: 90, role: 'WB' },
+      { x: 76, y: 20, role: 'W'  }, { x: 76, y: 50, role: 'ST' }, { x: 76, y: 80, role: 'W' },
+    ],
+  },
+  '3-4-2-1': {
+    name: '3-4-2-1',
+    positions: [
+      { x: 10, y: 50, role: 'GK' },
+      { x: 25, y: 30, role: 'CB' }, { x: 25, y: 50, role: 'CB' }, { x: 25, y: 70, role: 'CB' },
+      { x: 48, y: 10, role: 'WB' }, { x: 48, y: 37, role: 'CM' },
+      { x: 48, y: 63, role: 'CM' }, { x: 48, y: 90, role: 'WB' },
+      { x: 67, y: 37, role: 'AM' }, { x: 67, y: 63, role: 'AM' },
+      { x: 80, y: 50, role: 'ST' },
+    ],
+  },
+  '3-4-1-2': {
+    name: '3-4-1-2',
+    positions: [
+      { x: 10, y: 50, role: 'GK' },
+      { x: 25, y: 30, role: 'CB' }, { x: 25, y: 50, role: 'CB' }, { x: 25, y: 70, role: 'CB' },
+      { x: 48, y: 10, role: 'WB' }, { x: 48, y: 37, role: 'CM' },
+      { x: 48, y: 63, role: 'CM' }, { x: 48, y: 90, role: 'WB' },
+      { x: 65, y: 50, role: 'AM' },
+      { x: 78, y: 37, role: 'ST' }, { x: 78, y: 63, role: 'ST' },
+    ],
+  },
+  '3-1-4-2': {
+    name: '3-1-4-2',
+    positions: [
+      { x: 10, y: 50, role: 'GK' },
+      { x: 25, y: 30, role: 'CB' }, { x: 25, y: 50, role: 'CB' }, { x: 25, y: 70, role: 'CB' },
+      { x: 43, y: 50, role: 'DM' },
+      { x: 58, y: 12, role: 'WM' }, { x: 58, y: 37, role: 'CM' },
+      { x: 58, y: 63, role: 'CM' }, { x: 58, y: 88, role: 'WM' },
+      { x: 78, y: 37, role: 'ST' }, { x: 78, y: 63, role: 'ST' },
+    ],
+  },
+  '5-4-1': {
+    name: '5-4-1',
+    positions: [
+      { x: 10, y: 50, role: 'GK' },
+      { x: 25, y: 10, role: 'WB' }, { x: 25, y: 30, role: 'CB' },
+      { x: 25, y: 50, role: 'CB' },
+      { x: 25, y: 70, role: 'CB' }, { x: 25, y: 90, role: 'WB' },
+      { x: 55, y: 17, role: 'WM' }, { x: 55, y: 39, role: 'CM' },
+      { x: 55, y: 61, role: 'CM' }, { x: 55, y: 83, role: 'WM' },
+      { x: 80, y: 50, role: 'ST' },
+    ],
   },
   '5-3-2': {
     name: '5-3-2',
     positions: [
       { x: 10, y: 50, role: 'GK' },
-      { x: 25, y: 15, role: 'WB' },
-      { x: 25, y: 30, role: 'CB' },
+      { x: 25, y: 10, role: 'WB' }, { x: 25, y: 30, role: 'CB' },
       { x: 25, y: 50, role: 'CB' },
-      { x: 25, y: 70, role: 'CB' },
-      { x: 25, y: 85, role: 'WB' },
-      { x: 55, y: 35, role: 'CM' },
-      { x: 55, y: 50, role: 'CM' },
-      { x: 55, y: 65, role: 'CM' },
-      { x: 75, y: 40, role: 'ST' },
-      { x: 75, y: 60, role: 'ST' },
-    ]
-  }
+      { x: 25, y: 70, role: 'CB' }, { x: 25, y: 90, role: 'WB' },
+      { x: 55, y: 30, role: 'CM' }, { x: 55, y: 50, role: 'CM' }, { x: 55, y: 70, role: 'CM' },
+      { x: 78, y: 37, role: 'ST' }, { x: 78, y: 63, role: 'ST' },
+    ],
+  },
+  '5-2-3': {
+    name: '5-2-3',
+    positions: [
+      { x: 10, y: 50, role: 'GK' },
+      { x: 25, y: 10, role: 'WB' }, { x: 25, y: 30, role: 'CB' },
+      { x: 25, y: 50, role: 'CB' },
+      { x: 25, y: 70, role: 'CB' }, { x: 25, y: 90, role: 'WB' },
+      { x: 52, y: 37, role: 'CM' }, { x: 52, y: 63, role: 'CM' },
+      { x: 78, y: 20, role: 'W'  }, { x: 78, y: 50, role: 'ST' }, { x: 78, y: 80, role: 'W' },
+    ],
+  },
 };
 
 const TacticalBoard = () => {
