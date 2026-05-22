@@ -9,6 +9,7 @@ import HistoricalOverview from './pages/HistoricalOverview';
 import Assistant from './pages/Assistant';
 import ScoutingPool from './pages/ScoutingPool';
 import SquadPlanning from './pages/SquadPlanning';
+import ControlScore from './pages/ControlScore';
 import { SquadProvider } from './contexts/SquadContext';
 import { TacticsProvider } from './contexts/TacticsContext';
 
@@ -27,6 +28,7 @@ function App() {
               <Route path="/assistant" element={<Assistant />} />
               <Route path="/scouting" element={<ScoutingPool />} />
               <Route path="/squad-planning" element={<SquadPlanning />} />
+              <Route path="/control-score" element={<ControlScore />} />
             </Routes>
           </Layout>
         </Router>

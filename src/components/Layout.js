@@ -12,7 +12,8 @@ import {
   Sun,
   BarChart3,
   Target,
-  Layers
+  Layers,
+  TrendingUp,
 } from 'lucide-react';
 
 const Layout = ({ children }) => {
@@ -40,6 +41,7 @@ const Layout = ({ children }) => {
     { name: 'AI Assistant', href: '/assistant', icon: MessageCircle },
     { name: 'Scouting Pool', href: '/scouting', icon: Target },
     { name: 'Squad Planning', href: '/squad-planning', icon: Layers },
+    { name: 'Control Score', href: '/control-score', icon: TrendingUp },
   ];
 
   const isActive = (href) => {
